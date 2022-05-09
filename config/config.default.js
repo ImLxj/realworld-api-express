@@ -1,4 +1,6 @@
 /* 
   默认配置
 */
-module.exports = {}
+module.exports = {
+	dbUrl: 'mongodb://localhost/realworld',
+}
