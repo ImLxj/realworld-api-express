@@ -1,7 +1,32 @@
+const { Article, User } = require('../model')
+
 // 列出文章
 exports.listArticles = async (req, res, next) => {
 	try {
-		res.send(' get')
+		const { limit = 20, offset = 0, tag, author } = req.query
+		const filter = {}
+		if (tag) {
+			filter.tagList = tag
+		}
+
+		if (author) {
+			const user = await User.findOne({
+				username: author
+			})
+			filter.author = user ? user._id : null
+		}
+
+		const articles = await Article.find(filter)
+			.skip(Number.parseInt(offset)) // 跳过多少条
+			.limit(Number.parseInt(limit)) // 查询多少条
+			.sort({
+				createAt: -1
+			}) //
+		const articlesCount = await Article.countDocuments()
+		res.status(200).json({
+			articles,
+			articlesCount
+		})
 	} catch (error) {
 		next(error)
 	}
@@ -17,7 +42,19 @@ exports.feedArticle = async (req, res, next) => {
 // 获取文章
 exports.getArticle = async (req, res, next) => {
 	try {
-		res.send('/:slug get')
+		const articleData = await Article.findById(req.params.articleId).populate(
+			'author',
+			['username', 'bio', 'image', 'following']
+		)
+
+		if (!articleData) {
+			res.status(404).json({
+				message: '没有查询到当前文章'
+			})
+		}
+		res.status(200).json({
+			articleData
+		})
 	} catch (error) {
 		next(error)
 	}
@@ -25,7 +62,15 @@ exports.getArticle = async (req, res, next) => {
 // 创建文章
 exports.createArticle = async (req, res, next) => {
 	try {
-		res.send(' post')
+		const article = new Article(req.body.article)
+		article.author = req.user._id
+		// 通过定义的数据类型，将users集合通过id查询到的信息映射到author里面，但是不会改变插入的数据，原本插入的author是_id数据库里面也还是_id
+		article.populate('author', ['username', 'bio', 'image', 'following'])
+		await article.save()
+		console.log(article)
+		res.status(200).json({
+			article
+		})
 	} catch (error) {
 		next(error)
 	}

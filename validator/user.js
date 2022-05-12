@@ -3,6 +3,7 @@ const validator = require('../middleware/validator')
 const { User } = require('../model')
 const md5 = require('../util/md5')
 
+// 注册校验
 exports.register = validator([
 	// 配置验证规则
 	body('user.username')
@@ -30,6 +31,7 @@ exports.register = validator([
 	body('user.password').notEmpty().withMessage('密码不能为空')
 ])
 
+// 登录校验
 exports.login = [
 	validator([
 		body('user.email').notEmpty().withMessage('邮箱不能为空'),
@@ -47,7 +49,6 @@ exports.login = [
 			if (!user) {
 				return Promise.reject('邮箱不存在')
 			}
-			console.log(user)
 			// 将res.user挂载到中间件当中，后续的中间件也可以使用了
 			req.user = user
 		})
@@ -60,3 +61,4 @@ exports.login = [
 		})
 	])
 ]
+
