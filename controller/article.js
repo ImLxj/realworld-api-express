@@ -1,4 +1,4 @@
-const { Article, User } = require('../model')
+const { Article, User, Comment } = require('../model')
 
 // 列出文章
 exports.listArticles = async (req, res, next) => {
@@ -31,7 +31,7 @@ exports.listArticles = async (req, res, next) => {
 		next(error)
 	}
 }
-// 提要文章
+// 当前用户创建的文章
 exports.feedArticle = async (req, res, next) => {
 	try {
 		res.send('/feed get')
@@ -107,7 +107,13 @@ exports.deleteArticle = async (req, res, next) => {
 // 为文章添加评论
 exports.addComments = async (req, res, next) => {
 	try {
-		res.send('/:slug/comments post')
+		const comment = req.body.comment
+		const article = req.article
+		article.comments.push(comment)
+		await article.save()
+		res.status(201).json({
+			article
+		})
 	} catch (error) {
 		next(error)
 	}
@@ -115,7 +121,11 @@ exports.addComments = async (req, res, next) => {
 // 获取评论
 exports.getComments = async (req, res, next) => {
 	try {
-		res.send('/:slug/comments get')
+		// 获取到一个文章当中的所有评论
+		const comments = req.article.comments
+		res.status(200).json({
+			comments
+		})
 	} catch (error) {
 		next(error)
 	}
@@ -123,7 +133,18 @@ exports.getComments = async (req, res, next) => {
 // 删除评论
 exports.deleteComments = async (req, res, next) => {
 	try {
-		res.send('/:slug/comments/:id delete')
+		const commentId = req.params.commentId
+		const article = req.article
+		article.comments.forEach((item, index) => {
+			if (item._id.toString() === commentId) {
+				article.comments.splice(index, 1)
+			}
+		})
+		console.log(article.comments)
+		await article.save()
+		res.status(201).json({
+			comment: article.comments
+		})
 	} catch (error) {
 		next(error)
 	}

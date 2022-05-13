@@ -2,7 +2,7 @@ const jwt = require('../util/jwt')
 const { jwtSelect } = require('../config/config.default')
 const { User } = require('../model')
 
-// 添加文章 
+// 权限认证
 module.exports = async (req, res, next) => {
 	let token = req.headers['authorization']
 	token = token ? token.split('Bearer ')[1] : null

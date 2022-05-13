@@ -1,7 +1,10 @@
 // 获取个人资料
 exports.getProfile = async (req, res, next) => {
 	try {
-		res.send('/:username get')
+		const user = req.user
+		res.status(200).json({
+			profile: user
+		})
 	} catch (error) {
 		next(error)
 	}

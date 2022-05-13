@@ -53,7 +53,15 @@ exports.getUser = async (req, res, next) => {
 // 更新当前用户
 exports.putUser = async (req, res, next) => {
 	try {
-		res.send('/user put')
+		const userInfo = req.body.userInfo
+		const user = await User.findById(req.user._id)
+		user.email = userInfo.email || user.email
+		user.username = userInfo.username || user.username
+		user.bio = userInfo.bio || user.bio
+		user.image = userInfo.image || user.image
+		res.status(200).json({
+			user
+		})
 	} catch (error) {
 		next(error)
 	}
