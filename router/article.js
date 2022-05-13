@@ -24,7 +24,12 @@ router.put(
 )
 
 // 删除文章
-router.delete('/:articleId', articleCtrl.deleteArticle)
+router.delete(
+	'/:articleId',
+	auth,
+	articleEdit.deleteArticle,
+	articleCtrl.deleteArticle
+)
 
 // 为文章添加评论
 router.post('/:articleId/comments', articleCtrl.addComments)

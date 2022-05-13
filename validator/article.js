@@ -43,3 +43,5 @@ exports.queryArticleId = [
 		next()
 	}
 ]
+
+exports.deleteArticle = exports.queryArticleId

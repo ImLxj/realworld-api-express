@@ -78,7 +78,16 @@ exports.createArticle = async (req, res, next) => {
 // 更新文章
 exports.updateArticle = async (req, res, next) => {
 	try {
-		res.send('/:slug put')
+		// article是当前查询到的文章
+		const article = req.article
+		const bodyArticle = req.body.article
+		article.title = bodyArticle.title || article.title
+		article.description = bodyArticle.description || article.description
+		article.body = bodyArticle.body || article.body
+		await article.save()
+		res.status(200).json({
+			article
+		})
 	} catch (error) {
 		next(error)
 	}
@@ -86,7 +95,11 @@ exports.updateArticle = async (req, res, next) => {
 // 删除文章
 exports.deleteArticle = async (req, res, next) => {
 	try {
-		res.send('/:slug delete')
+		const article = req.article
+		await article.remove()
+		res.status(204).json({
+			message: '删除文章成功'
+		})
 	} catch (error) {
 		next(error)
 	}
