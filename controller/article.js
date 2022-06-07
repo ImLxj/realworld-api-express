@@ -21,7 +21,9 @@ exports.listArticles = async (req, res, next) => {
 			.limit(Number.parseInt(limit)) // 查询多少条
 			.sort({
 				createAt: -1
-			}) //
+			})
+			.populate('author', ['username', 'image']) //
+		// 查询所有文章数量
 		const articlesCount = await Article.countDocuments()
 		res.status(200).json({
 			articles,
@@ -34,7 +36,14 @@ exports.listArticles = async (req, res, next) => {
 // 当前用户创建的文章
 exports.feedArticle = async (req, res, next) => {
 	try {
-		res.send('/feed get')
+		const articles = req.userArticle
+
+		if (!articles) {
+			return res.status(400).json({
+				message: '您没有发布任何文章,赶快发布一篇把！'
+			})
+		}
+		res.status(200).json(articles)
 	} catch (error) {
 		next(error)
 	}
@@ -67,7 +76,6 @@ exports.createArticle = async (req, res, next) => {
 		// 通过定义的数据类型，将users集合通过id查询到的信息映射到author里面，但是不会改变插入的数据，原本插入的author是_id数据库里面也还是_id
 		article.populate('author', ['username', 'bio', 'image', 'following'])
 		await article.save()
-		console.log(article)
 		res.status(200).json({
 			article
 		})
@@ -107,9 +115,14 @@ exports.deleteArticle = async (req, res, next) => {
 // 为文章添加评论
 exports.addComments = async (req, res, next) => {
 	try {
-		const comment = req.body.comment
+		const commentInfo = req.body.comment
+		console.log(commentInfo)
 		const article = req.article
-		article.comments.push(comment)
+		if (commentInfo.body === '')
+			return res.status(201).json({
+				article
+			})
+		article.comments.push(commentInfo)
 		await article.save()
 		res.status(201).json({
 			article
@@ -140,7 +153,6 @@ exports.deleteComments = async (req, res, next) => {
 				article.comments.splice(index, 1)
 			}
 		})
-		console.log(article.comments)
 		await article.save()
 		res.status(201).json({
 			comment: article.comments
@@ -152,7 +164,14 @@ exports.deleteComments = async (req, res, next) => {
 // 最喜欢的文章
 exports.favoriteArticle = async (req, res, next) => {
 	try {
-		res.send('/:slug/favorite post')
+		const article = req.article
+		await Article.updateMany(
+			{ _id: article._id },
+			{ $set: { favoritesCount: article.favoritesCount + 1 } }
+		)
+		res.status(200).json({
+			message: '点赞成功'
+		})
 	} catch (error) {
 		next(error)
 	}

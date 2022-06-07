@@ -6,7 +6,7 @@ module.exports = (validations) => {
 		if (errors.isEmpty()) {
 			return next()
 		}
-		res.status(400).json({
+		res.status(200).json({
 			errors: errors.array()
 		})
 	}

@@ -7,11 +7,17 @@ const articleValidator = require('../validator/article')
 router.get('', articleCtrl.listArticles)
 
 // 当前用户创建的文章
-router.get('/feed', articleCtrl.feedArticle)
+router.get(
+	'/feed/:authorId',
+	auth,
+	articleValidator.userArticle,
+	articleCtrl.feedArticle
+)
 
 // 获取文章
 router.get(
 	'/:articleId',
+	auth,
 	articleValidator.queryArticleId,
 	articleCtrl.getArticle
 )
@@ -59,9 +65,14 @@ router.delete(
 )
 
 // 最喜欢的文章
-router.post('/:articleId/favorite', articleCtrl.favoriteArticle)
+router.post(
+	'/:articleId/favorite',
+	auth,
+	articleValidator.favorite,
+	articleCtrl.favoriteArticle
+)
 
 // 不喜欢的文章
-router.delete('/:articleId/favorite', articleCtrl.unfavoriteArticle)
+router.delete('/:articleId/favorite', auth, articleCtrl.unfavoriteArticle)
 
 module.exports = router
