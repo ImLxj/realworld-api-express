@@ -13,7 +13,7 @@ exports.listArticles = async (req, res, next) => {
 			const user = await User.findOne({
 				username: author
 			})
-			filter.author = user ? user._id : null
+			filter.author = user ? user._id.toString() : null
 		}
 
 		const articles = await Article.find(filter)
@@ -24,7 +24,7 @@ exports.listArticles = async (req, res, next) => {
 			})
 			.populate('author', ['username', 'image']) //
 		// 查询所有文章数量
-		const articlesCount = await Article.countDocuments()
+		const articlesCount = await Article.countDocuments(filter)
 		res.status(200).json({
 			articles,
 			articlesCount
@@ -71,7 +71,10 @@ exports.getArticle = async (req, res, next) => {
 // 创建文章
 exports.createArticle = async (req, res, next) => {
 	try {
-		const article = new Article(req.body.article)
+		const articleInfo = req.body.article
+		const tagList = articleInfo.tagList.split(' ')
+		articleInfo.tagList = tagList
+		const article = new Article(articleInfo)
 		article.author = req.user._id
 		// 通过定义的数据类型，将users集合通过id查询到的信息映射到author里面，但是不会改变插入的数据，原本插入的author是_id数据库里面也还是_id
 		article.populate('author', ['username', 'bio', 'image', 'following'])
@@ -116,7 +119,6 @@ exports.deleteArticle = async (req, res, next) => {
 exports.addComments = async (req, res, next) => {
 	try {
 		const commentInfo = req.body.comment
-		console.log(commentInfo)
 		const article = req.article
 		if (commentInfo.body === '')
 			return res.status(201).json({

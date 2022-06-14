@@ -50,6 +50,7 @@ exports.getUser = async (req, res, next) => {
 		next(error)
 	}
 }
+
 // 更新当前用户
 exports.putUser = async (req, res, next) => {
 	try {
@@ -59,6 +60,7 @@ exports.putUser = async (req, res, next) => {
 		user.username = userInfo.username || user.username
 		user.bio = userInfo.bio || user.bio
 		user.image = userInfo.image || user.image
+		await user.save()
 		res.status(200).json({
 			user
 		})
