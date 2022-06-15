@@ -8,7 +8,7 @@ const commentSchema = mongoose.Schema({
 		type: String,
 		required: true
 	},
-	userInfo: {
+	author: {
 		type: [String]
 	}
 })

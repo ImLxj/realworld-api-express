@@ -37,11 +37,6 @@ exports.queryArticleId = [
 			return res.status(400).json({
 				message: '当前用户不存在'
 			})
-		if (req.user._id.toJSON() !== req.article.author.toJSON()) {
-			return res.status(403).json({
-				message: '您没有权限操作该文章'
-			})
-		}
 		next()
 	}
 ]
@@ -69,7 +64,40 @@ exports.userArticle = [
 ]
 
 // 删除文章校验
-exports.deleteArticle = exports.queryArticleId
+exports.deleteArticle = [
+	validator([
+		param('articleId').custom(async (value) => {
+			if (!mongoose.isValidObjectId(value)) {
+				return Promise.reject('文章id类型错误')
+			}
+		})
+	]),
+	// 校验文章是否存在
+	async (req, res, next) => {
+		const articleId = req.params.articleId
+		const article = await Article.findById(articleId)
+		req.article = article
+		if (!article) {
+			return res.status(404).json({
+				message: '该文章不存在'
+			})
+		}
+		next()
+	},
+	// 修改文章的作者是否是当前登录用户
+	async (req, res, next) => {
+		if (!req.user)
+			return res.status(400).json({
+				message: '当前用户不存在'
+			})
+		if (req.user._id.toJSON() !== req.article.author.toJSON()) {
+			return res.status(403).json({
+				message: '您没有权限操作该文章'
+			})
+		}
+		next()
+	}
+]
 
 // 为当前文章添加评论
 exports.addComments = [
