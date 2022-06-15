@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const baseModel = require('./baseModel')
-const commentSchema = require('./comment')
 const Schema = mongoose.Schema
 
 const articleSchema = mongoose.Schema({
@@ -29,8 +28,7 @@ const articleSchema = mongoose.Schema({
 	author: {
 		type: Schema.Types.ObjectId,
 		ref: 'User'
-	},
-	comments: [commentSchema]
+	}
 })
 
 module.exports = articleSchema

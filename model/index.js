@@ -17,5 +17,6 @@ const db = mongoose.createConnection(
 // 导出组织模型
 module.exports = {
 	User: db.model('User', require('./user')),
-	Article: db.model('Article', require('./article'))
+	Article: db.model('Article', require('./article')),
+	Comment: db.model('Comment', require('./comment'))
 }

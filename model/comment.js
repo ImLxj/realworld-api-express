@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const timeData = require('./baseModel')
 const Schema = mongoose.Schema
-
 const commentSchema = mongoose.Schema({
 	...timeData,
 	body: {
@@ -9,7 +8,12 @@ const commentSchema = mongoose.Schema({
 		required: true
 	},
 	author: {
-		type: [String]
+		type: Schema.Types.ObjectId,
+		ref: 'User'
+	},
+	articleId: {
+		type: Schema.Types.ObjectId,
+		ref: 'Article'
 	}
 })
 

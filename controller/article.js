@@ -118,22 +118,11 @@ exports.deleteArticle = async (req, res, next) => {
 // 为文章添加评论
 exports.addComments = async (req, res, next) => {
 	try {
-		const commentInfo = req.body.comment
-		// 这样做的方法是将个人信息存到评论里面，这样用户修改头像可以刷新
-		const user = await User.findOne({ username: commentInfo.author.username })
-		let author = []
-		author[0] = user._id
-		author[1] = user.username
-		author[2] = user.image
-		let comment = {
-			body: commentInfo.body,
-			author
-		}
-		const article = req.article
-		article.comments.push(comment)
-		await article.save()
+		const comments = await new Comment(req.body.comment)
+		comments.populate('author', ['username', 'image'])
+		await comments.save()
 		res.status(201).json({
-			article
+			comments
 		})
 	} catch (error) {
 		next(error)
@@ -143,7 +132,10 @@ exports.addComments = async (req, res, next) => {
 exports.getComments = async (req, res, next) => {
 	try {
 		// 获取到一个文章当中的所有评论
-		const comments = req.article.comments
+		const articleId = req.article._id.toString()
+		const comments = await Comment.find({
+			articleId
+		}).populate('author', ['username', 'image'])
 		res.status(200).json({
 			comments
 		})
