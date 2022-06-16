@@ -73,6 +73,11 @@ router.post(
 )
 
 // 不喜欢的文章
-router.delete('/:articleId/favorite', auth, articleCtrl.unfavoriteArticle)
+router.delete(
+	'/:articleId/favorite',
+	auth,
+	articleValidator.favorite,
+	articleCtrl.unfavoriteArticle
+)
 
 module.exports = router

@@ -28,6 +28,15 @@ const articleSchema = mongoose.Schema({
 	author: {
 		type: Schema.Types.ObjectId,
 		ref: 'User'
+	},
+	favorite: {
+		type: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: 'User'
+			}
+		],
+		select: false
 	}
 })
 

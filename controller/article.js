@@ -22,7 +22,8 @@ exports.listArticles = async (req, res, next) => {
 			.sort({
 				createAt: -1
 			})
-			.populate('author', ['username', 'image']) //
+			.select('+favorite')
+			.populate('author', ['username', 'image'])
 		// 查询所有文章数量
 		const articlesCount = await Article.countDocuments(filter)
 		res.status(200).json({
@@ -51,10 +52,9 @@ exports.feedArticle = async (req, res, next) => {
 // 获取文章
 exports.getArticle = async (req, res, next) => {
 	try {
-		const articleData = await Article.findById(req.params.articleId).populate(
-			'author',
-			['username', 'bio', 'image', 'following']
-		)
+		const articleData = await Article.findById(req.params.articleId)
+			.select('+favorite')
+			.populate('author', ['username', 'bio', 'image', 'following'])
 
 		if (!articleData) {
 			res.status(404).json({
@@ -164,13 +164,19 @@ exports.deleteComments = async (req, res, next) => {
 // 最喜欢的文章
 exports.favoriteArticle = async (req, res, next) => {
 	try {
-		const article = req.article
-		await Article.updateMany(
-			{ _id: article._id },
-			{ $set: { favoritesCount: article.favoritesCount + 1 } }
-		)
+		const userId = req.user._id
+		// 获取到当前文章的所有信息  select('+favorite') 强制包含已经在schema level排除的字段
+		const article = await Article.findById(req.article._id).select('+favorite')
+		// 遍历文章的favorite字段看看里面有没有当前用户如果没有就添加进喜欢列表
+		if (
+			!article.favorite.map((id) => id.toString()).includes(userId.toString())
+		) {
+			article.favorite.push(userId)
+			article.favoritesCount += 1
+			article.save()
+		}
 		res.status(200).json({
-			message: '点赞成功'
+			message: '成功添加喜欢的文章'
 		})
 	} catch (error) {
 		next(error)
@@ -179,7 +185,19 @@ exports.favoriteArticle = async (req, res, next) => {
 // 不喜欢的文章
 exports.unfavoriteArticle = async (req, res, next) => {
 	try {
-		res.send('/:slug/favorite delete')
+		const article = await Article.findById(req.article._id).select('+favorite')
+		const index = article.favorite
+			.map((id) => id.toString())
+			.indexOf(req.user._id.toString())
+		console.log(index)
+		if (index > -1) {
+			article.favorite.splice(index, 1)
+			article.favoritesCount -= 1
+			article.save()
+		}
+		res.status(200).json({
+			message: '取消点赞成功'
+		})
 	} catch (error) {
 		next(error)
 	}
