@@ -1,7 +1,8 @@
-const { body } = require('express-validator')
+const { body, param } = require('express-validator')
 const validator = require('../middleware/validator')
 const { User } = require('../model')
 const md5 = require('../util/md5')
+const mongoose = require('mongoose')
 
 // 注册校验
 exports.register = validator([
@@ -60,4 +61,25 @@ exports.login = [
 			}
 		})
 	])
+]
+
+exports.userId = [
+	validator([
+		param('id').custom(async (value) => {
+			if (!mongoose.isValidObjectId(value)) {
+				return Promise.reject('文章id类型错误')
+			}
+		})
+	]),
+	async (req, res, next) => {
+		const userId = req.params.id
+		const user = await User.findById(userId.toString())
+		req.followingUser = user
+		if (!user) {
+			return res.status(404).json({
+				message: '该用户不存在'
+			})
+		}
+		next()
+	}
 ]

@@ -1,15 +1,26 @@
 const express = require('express')
 const router = express.Router()
 const profileCtrl = require('../controller/profile')
+const profileValidator = require('../validator/user')
 const auth = require('../util/auth')
 
 // 获取个人资料
 router.get('/:username', auth, profileCtrl.getProfile)
 
 // 关注用户
-router.post('/:username/follow', auth, profileCtrl.followUser)
+router.post(
+	'/:id/follow',
+	auth,
+	profileValidator.userId,
+	profileCtrl.followUser
+)
 
-// 取消关注用户
-router.delete('/:username/follow', auth, profileCtrl.unFollowUser)
+// 取消关注用户 
+router.delete(
+	'/:id/follow',
+	auth,
+	profileValidator.userId,
+	profileCtrl.unFollowUser
+)
 
 module.exports = router
