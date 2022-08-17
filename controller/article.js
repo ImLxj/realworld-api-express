@@ -15,15 +15,15 @@ exports.listArticles = async (req, res, next) => {
 			})
 			filter.author = user ? user._id.toString() : null
 		}
-
+		// 如果filter是空对象就查询所有文章
 		const articles = await Article.find(filter)
+			.sort({
+				createdAt: -1
+			})
 			.skip(Number.parseInt(offset)) // 跳过多少条
 			.limit(Number.parseInt(limit)) // 查询多少条
-			.sort({
-				createAt: -1
-			})
+			.populate('author', ['username', 'image', 'following'])
 			.select('+favorite')
-			.populate('author', ['username', 'image'])
 		// 查询所有文章数量
 		const articlesCount = await Article.countDocuments(filter)
 		res.status(200).json({
@@ -38,7 +38,6 @@ exports.listArticles = async (req, res, next) => {
 exports.feedArticle = async (req, res, next) => {
 	try {
 		const articles = req.userArticle
-
 		if (!articles) {
 			return res.status(400).json({
 				message: '您没有发布任何文章,赶快发布一篇把！'
@@ -161,7 +160,7 @@ exports.deleteComments = async (req, res, next) => {
 		next(error)
 	}
 }
-// 最喜欢的文章
+// 添加喜欢的文章
 exports.favoriteArticle = async (req, res, next) => {
 	try {
 		const userId = req.user._id

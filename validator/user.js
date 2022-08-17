@@ -45,7 +45,8 @@ exports.login = [
 				'username',
 				'password',
 				'bio',
-				'image'
+				'image',
+				'following'
 			])
 			if (!user) {
 				return Promise.reject('邮箱不存在')

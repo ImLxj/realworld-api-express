@@ -9,8 +9,8 @@
 ```js
 // 所有的请求都会通过该中间件，前提是这个中间件要放到请求上放定义
 app.use((req, res, next) => {
-	console.log("time", Date.now())
-	next()
+ console.log("time", Date.now())
+ next()
 })
 ```
 
@@ -18,8 +18,8 @@ app.use((req, res, next) => {
 
 ```js
 app.get("/", (req, res, next) => {
-	console.log("request type:", req.method)
-	next()
+ console.log("request type:", req.method)
+ next()
 })
 ```
 
@@ -27,15 +27,15 @@ app.get("/", (req, res, next) => {
 
 ```js
 app.post("/text", (req, res, next) => {
-	console.log("hello post")
-	next()
+ console.log("hello post")
+ next()
 })
 /*
-	还有一些常用的请求方法：
-	app.get
-	app.delete
-	app.put
-	app.patch
+ 还有一些常用的请求方法：
+ app.get
+ app.delete
+ app.put
+ app.patch
 */
 ```
 
@@ -43,17 +43,17 @@ app.post("/text", (req, res, next) => {
 
 ```js
 app.use(
-	"/user/:id",
-	(req, res, next) => {
-		console.log("Request URL", req.originalUrl)
+ "/user/:id",
+ (req, res, next) => {
+  console.log("Request URL", req.originalUrl)
     // 这个next函数是在当前处理栈里面的。
     next()
-	},
-	(req, res, next) => {
-		console.log("Request Type", req.method)
+ },
+ (req, res, next) => {
+  console.log("Request Type", req.method)
     // 这个next是跳出当前处理栈，执行下面的代码。
     next()
-	}
+ }
 )
 
 ```
@@ -62,21 +62,21 @@ app.use(
 
 ```js
 app.use(
-	"/user/:id",
-	(req, res, next) => {
-		console.log("Request URL", req.originalUrl)
-		// 这个next函数是在当前处理栈里面的。
-		next()
-	},
-	(req, res, next) => {
-		console.log("Request Type", req.method)
-		// 这个next是跳出当前处理栈，执行下面的代码。
-		res.send("111")
-		next()
-	}
+ "/user/:id",
+ (req, res, next) => {
+  console.log("Request URL", req.originalUrl)
+  // 这个next函数是在当前处理栈里面的。
+  next()
+ },
+ (req, res, next) => {
+  console.log("Request Type", req.method)
+  // 这个next是跳出当前处理栈，执行下面的代码。
+  res.send("111")
+  next()
+ }
 )
 app.post("/user/:id", (req, res) => {
-	console.log("hello post")
+ console.log("hello post")
 })
 // 注意：如果之前的中间件已经发出响应了，之后的就不可以在发送响应了，因为发送过一次响应表明这个请求已经中断了，再次发送响应它会报错。
 ```
@@ -85,24 +85,24 @@ app.post("/user/:id", (req, res) => {
 
 ```js
 function logOriginalUrl(req, res, next) {
-	console.log("Request URL :", req.originalUrl)
-	next()
+ console.log("Request URL :", req.originalUrl)
+ next()
 }
 
 function logMethod(req, res, next) {
-	console.log("Request Type :", req.method)
-	next()
+ console.log("Request Type :", req.method)
+ next()
 }
 
 let logStuff = [logOriginalUrl, logMethod]
 app.post("/user/:id", logStuff, (req, res, next) => {
-	res.send("响应成功")
+ res.send("响应成功")
 })
 ```
 
 #### 路由级别中间件
 
-路由级别中间件与应用程序级中间件的工作方式相同，只不过它绑定到的实例` express.Router()`。
+路由级别中间件与应用程序级中间件的工作方式相同，只不过它绑定到的实例`express.Router()`。
 
 ```
 const router = express.Router()
@@ -122,11 +122,11 @@ const router = express.Router()
 
 // 2、配置路由
 router.get('/', (req, res) => {
-	res.send('hello get')
+ res.send('hello get')
 })
 
 router.post('/text', (req, res) => {
-	res.send('hello post')
+ res.send('hello post')
 })
 
 // 导出模块
@@ -142,8 +142,8 @@ const router = require('./router')
 // 注册路由模块
 app.use(router)
 /*
-	还可以限定请求的路径：
-	app.use('/api',router)
+ 还可以限定请求的路径：
+ app.use('/api',router)
 */
 ```
 
@@ -218,9 +218,9 @@ https://api.example.com/v1/
 
 举例来说，有一个API提供动物园（zoo）的信息，还包括各种动物和雇员的信息，则它的路径应该设计成下面这样。
 
-- https://api.example.com/v1/zoos
-- https://api.example.com/v1/animals
-- https://api.example.com/v1/employees
+- <https://api.example.com/v1/zoos>
+- <https://api.example.com/v1/animals>
+- <https://api.example.com/v1/employees>
 
 ### HTTP动词
 
@@ -341,11 +341,11 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 app.get('/', (req, res) => {
-	res.send('hello world')
+ res.send('hello world')
 })
 
 app.listen(PORT, () => {
-	console.log('服务器启动成功', `http://localhost:${PORT}`)
+ console.log('服务器启动成功', `http://localhost:${PORT}`)
 })
 
 ```
@@ -354,6 +354,5 @@ app.listen(PORT, () => {
 
 ```
 |--- config # 配置文件
-|	 |--- confi
+|  |--- confi
 ```
-

@@ -10,7 +10,7 @@ exports.login = async (req, res, next) => {
 				userId: user._id
 			},
 			jwtSelect,
-			{ expiresIn: '1h' }
+			{ expiresIn: '24h' }
 		)
 		delete user.password
 		res.status(200).json({

@@ -18,8 +18,8 @@ exports.followUser = async (req, res, next) => {
 		// 被点赞的
 		const followingUser = await User.findById(
 			req.followingUser._id.toString()
-		).select('+following')
-
+		).select('+following') // select是强制加入不会显示的字段
+		// includes 是判断字符串中是否有指定的子字符串 或者判断数组当中有指定的元素
 		if (
 			!followingUser.following
 				.map((id) => id.toString())
@@ -27,9 +27,12 @@ exports.followUser = async (req, res, next) => {
 		) {
 			followingUser.following.push(user._id)
 			followingUser.save()
+			res.status(200).json({
+				message: '关注成功'
+			})
 		}
 		res.status(200).json({
-			message: '关注成功'
+			message: '您已经关注了该用户'
 		})
 	} catch (error) {
 		next(error)
@@ -42,13 +45,15 @@ exports.unFollowUser = async (req, res, next) => {
 			req.followingUser._id.toString()
 		).select('+following')
 		const index = followingUser.following.indexOf(req.user._id.toString())
-		console.log(index)
 		if (index > -1) {
 			followingUser.following.splice(index, 1)
 			followingUser.save()
+			res.status(200).json({
+				message: '取消关注用户成功'
+			})
 		}
 		res.status(200).json({
-			message: '取消关注用户成功'
+			message: '您没有关注该用户'
 		})
 	} catch (error) {
 		next(error)

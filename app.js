@@ -7,7 +7,7 @@ require('./model')
 const app = express()
 
 app.use(express.json())
-app.use(morgan('dev'))
+app.use(morgan('dev')) // 默认日志
 app.use(cors())
 
 const PORT = process.env.PORT || 3000
