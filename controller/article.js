@@ -10,9 +10,7 @@ exports.listArticles = async (req, res, next) => {
 		}
 
 		if (author) {
-			const user = await User.findOne({
-				username: author
-			})
+			const user = await User.findById(author)
 			filter.author = user ? user._id.toString() : null
 		}
 		// 如果filter是空对象就查询所有文章
@@ -30,20 +28,6 @@ exports.listArticles = async (req, res, next) => {
 			articles,
 			articlesCount
 		})
-	} catch (error) {
-		next(error)
-	}
-}
-// 当前用户创建的文章
-exports.feedArticle = async (req, res, next) => {
-	try {
-		const articles = req.userArticle
-		if (!articles) {
-			return res.status(400).json({
-				message: '您没有发布任何文章,赶快发布一篇把！'
-			})
-		}
-		res.status(200).json(articles)
 	} catch (error) {
 		next(error)
 	}
@@ -71,8 +55,8 @@ exports.getArticle = async (req, res, next) => {
 exports.createArticle = async (req, res, next) => {
 	try {
 		const articleInfo = req.body.article
-		const tagList = articleInfo.tagList.split(' ')
-		articleInfo.tagList = tagList
+		/* const tagList = articleInfo.tagList.split(' ')
+		articleInfo.tagList = tagList */
 		const article = new Article(articleInfo)
 		article.author = req.user._id
 		// 通过定义的数据类型，将users集合通过id查询到的信息映射到author里面，但是不会改变插入的数据，原本插入的author是_id数据库里面也还是_id

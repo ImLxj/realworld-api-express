@@ -50,7 +50,6 @@ exports.getUser = async (req, res, next) => {
 		next(error)
 	}
 }
-
 // 更新当前用户
 exports.putUser = async (req, res, next) => {
 	try {

@@ -40,29 +40,6 @@ exports.queryArticleId = [
 		next()
 	}
 ]
-
-// 查询用户发布的文章
-exports.userArticle = [
-	validator([
-		param('authorId').custom(async (value) => {
-			if (!mongoose.isValidObjectId(value)) {
-				return Promise.reject('用户id类型错误')
-			}
-		})
-	]),
-	// 校验用户author是否存在
-	async (req, res, next) => {
-		// 当前用户的id就是文章列表里面的author
-		const authorId = req.user._id.toString()
-		const articles = await Article.find({ author: authorId }).populate(
-			'author',
-			['username', 'image']
-		)
-		req.userArticle = articles
-		next()
-	}
-]
-
 // 删除文章校验
 exports.deleteArticle = [
 	validator([

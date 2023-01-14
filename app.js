@@ -6,7 +6,7 @@ const errorHandler = require('./middleware/error-handler')
 require('./model')
 const app = express()
 
-app.use(express.json())
+app.use(express.json({limit: '300000'}))
 app.use(morgan('dev')) // 默认日志
 app.use(cors())
 
