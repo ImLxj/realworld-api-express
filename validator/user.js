@@ -88,8 +88,9 @@ exports.userId = [
 exports.otherUser = [
   validator([
     body("id").custom(async (value) => {
+      console.log(value)
       if (!mongoose.isValidObjectId(value)) {
-        return Promise.reject("文章id类型错误");
+        return Promise.reject("id类型错误");
       }
     }),
   ]),

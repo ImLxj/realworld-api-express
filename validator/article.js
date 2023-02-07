@@ -1,7 +1,7 @@
 const { body, param } = require('express-validator')
 const validator = require('../middleware/validator')
 const mongoose = require('mongoose')
-const { Article } = require('../model')
+const { Article, Comment } = require('../model')
 
 // 插入文章校验
 exports.createArticle = validator([
@@ -53,23 +53,31 @@ exports.deleteArticle = [
 	async (req, res, next) => {
 		const articleId = req.params.articleId
 		const article = await Article.findById(articleId)
-		req.article = article
+		const comment = await Comment.findOne({articleId})
 		if (!article) {
-			return res.status(404).json({
-				message: '该文章不存在'
+			return res.status(201).json({
+				message: '该文章不存在',
+				status: 201
 			})
+		} else {
+			req.article = article
+			if (comment) {
+				req.comment = comment
+			}
 		}
 		next()
 	},
 	// 修改文章的作者是否是当前登录用户
 	async (req, res, next) => {
 		if (!req.user)
-			return res.status(400).json({
-				message: '当前用户不存在'
+			return res.status(201).json({
+				message: '当前用户不存在',
+				status: 201
 			})
 		if (req.user._id.toJSON() !== req.article.author.toJSON()) {
-			return res.status(403).json({
-				message: '您没有权限操作该文章'
+			return res.status(201).json({
+				message: '您没有权限操作该文章',
+				status: 201
 			})
 		}
 		next()
@@ -140,23 +148,13 @@ exports.deleteComments = [
 	// 校验文章是否存在
 	async (req, res, next) => {
 		const articleId = req.params.articleId
+		const comment = await Comment.findOne({articleId})
 		const article = await Article.findById(articleId)
+		req.comment = comment
 		req.article = article
-		if (!article) {
+		if (!comment) {
 			return res.status(404).json({
 				message: '该文章不存在'
-			})
-		}
-		next()
-	},
-	// 校验评论是否存在
-	async (req, res, next) => {
-		const commentId = req.params.commentId
-		const article = req.article
-		const id = await article.comments.id(commentId)
-		if (!id) {
-			return res.status(404).json({
-				message: '没有该评论'
 			})
 		}
 		next()

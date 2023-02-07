@@ -7,7 +7,7 @@ module.exports = async (req, res, next) => {
 	let token = req.headers['authorization']
 	token = token ? token.split('Bearer ')[1] : null
 	if (!token) {
-		return res.status(200).json({
+		return res.status(201).json({
 			error: '没有权限'
 		})
 	}
@@ -18,7 +18,7 @@ module.exports = async (req, res, next) => {
 		req.user = await User.findById(Id.userId)
 		next()
 	} catch (err) {
-		return res.status(200).json({
+		return res.status(201).json({
 			error: '权限认证失败'
 		})
 	}

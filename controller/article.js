@@ -54,9 +54,8 @@ exports.getArticle = async (req, res, next) => {
 // 创建文章
 exports.createArticle = async (req, res, next) => {
 	try {
+		console.log('!!');
 		const articleInfo = req.body.article
-		/* const tagList = articleInfo.tagList.split(' ')
-		articleInfo.tagList = tagList */
 		const article = new Article(articleInfo)
 		article.author = req.user._id
 		// 通过定义的数据类型，将users集合通过id查询到的信息映射到author里面，但是不会改变插入的数据，原本插入的author是_id数据库里面也还是_id
@@ -91,8 +90,13 @@ exports.deleteArticle = async (req, res, next) => {
 	try {
 		const article = req.article
 		await article.remove()
-		res.status(204).json({
-			message: '删除文章成功'
+		const comment = req.comment
+		if (comment) {
+			await comment.remove()
+		}
+		res.status(200).json({
+			message: '删除文章成功',
+			status: 201
 		})
 	} catch (error) {
 		next(error)
@@ -101,12 +105,28 @@ exports.deleteArticle = async (req, res, next) => {
 // 为文章添加评论
 exports.addComments = async (req, res, next) => {
 	try {
-		const comments = await new Comment(req.body.comment)
-		comments.populate('author', ['username', 'image'])
-		await comments.save()
-		res.status(201).json({
-			comments
-		})
+		const articleId = req.body.comment.articleId
+		const comment = await Comment.findOne({ articleId: articleId})
+		// 如果没有找到当前文章就证明这个文章下面没有评论 就给他创建评论
+		if(comment === null) {
+			const content = req.body.comment.content
+			content.createTime = new Date()
+			req.body.comment.content = content
+			const comment = await Comment(req.body.comment)
+			await comment.save()
+			res.status(200).json({
+				comment
+			})
+		} else {
+			// 如果当前文章能查询到
+			const content = req.body.comment.content
+			content.createTime = new Date()
+			comment.content.push(req.body.comment.content)
+			await comment.save()
+			res.status(200).json({
+				comment
+			})
+		}
 	} catch (error) {
 		next(error)
 	}
@@ -116,9 +136,9 @@ exports.getComments = async (req, res, next) => {
 	try {
 		// 获取到一个文章当中的所有评论
 		const articleId = req.article._id.toString()
-		const comments = await Comment.find({
+		const comments = await Comment.findOne({
 			articleId
-		}).populate('author', ['username', 'image'])
+		}).populate('content.author', ['username', 'image'])
 		res.status(200).json({
 			comments
 		})
@@ -129,16 +149,19 @@ exports.getComments = async (req, res, next) => {
 // 删除评论
 exports.deleteComments = async (req, res, next) => {
 	try {
+		const comment = req.comment
 		const commentId = req.params.commentId
-		const article = req.article
-		article.comments.forEach((item, index) => {
-			if (item._id.toString() === commentId) {
-				article.comments.splice(index, 1)
+		const content = comment.content
+		content.forEach(async (item, index) => {
+			if(item._id.toString() === commentId.toString()) { 
+				content.splice(index, 1)
 			}
-		})
-		await article.save()
-		res.status(201).json({
-			comment: article.comments
+		});
+		await comment.save()
+		res.status(200).json({
+			data: comment,
+			message: '删除成功',
+			status: 200
 		})
 	} catch (error) {
 		next(error)
@@ -157,10 +180,17 @@ exports.favoriteArticle = async (req, res, next) => {
 			article.favorite.push(userId)
 			article.favoritesCount += 1
 			article.save()
+			res.status(200).json({
+				message: '成功添加喜欢的文章',
+				status: 200
+			})
+		} else {
+			res.status(201).json({
+				message: '您已经点过赞了',
+				status: 201
+			})
 		}
-		res.status(200).json({
-			message: '成功添加喜欢的文章'
-		})
+		
 	} catch (error) {
 		next(error)
 	}

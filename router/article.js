@@ -6,14 +6,6 @@ const articleValidator = require('../validator/article')
 // 列出文章
 router.get('', articleCtrl.listArticles)
 
-// 当前用户创建的文章
-router.get(
-	'/feed/:authorId',
-	auth,
-	articleValidator.userArticle,
-	articleCtrl.feedArticle
-)
-
 // 获取文章
 router.get(
 	'/:articleId',
