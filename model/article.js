@@ -37,6 +37,14 @@ const articleSchema = mongoose.Schema({
 			}
 		],
 		select: false
+	},
+	browseUsers: {
+		type: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: 'User'
+			}
+		]
 	}
 })
 

@@ -38,14 +38,37 @@ exports.getArticle = async (req, res, next) => {
 		const articleData = await Article.findById(req.params.articleId)
 			.select('+favorite')
 			.populate('author', ['username', 'bio', 'image', 'following'])
-
+		const user = req.user
+		let isBe = false
+		const browseUsers = articleData.browseUsers
+		// 第一次浏览文章 直接添加
+		if (browseUsers.length === 0) {
+			isBe = true
+		} else {
+			// 如果不是第一次浏览文章 就找文章里面有没有被当前用户浏览过 如果没有被浏览过就插入 并 +1 如果浏览过什么都不做
+			browseUsers.forEach(item => {
+				if (item.toJSON() === user._id.toJSON()) {
+					return isBe = false
+				} else {
+					isBe = true
+				}
+			})
+		}
+		if (isBe) {
+			browseUsers.push(user._id)
+			await articleData.save()
+		}
 		if (!articleData) {
 			res.status(404).json({
 				message: '没有查询到当前文章'
 			})
 		}
 		res.status(200).json({
-			articleData
+			articleData,
+			meta: {
+				message: '查询成功',
+				status: 200
+			}
 		})
 	} catch (error) {
 		next(error)
@@ -106,9 +129,9 @@ exports.deleteArticle = async (req, res, next) => {
 exports.addComments = async (req, res, next) => {
 	try {
 		const articleId = req.body.comment.articleId
-		const comment = await Comment.findOne({ articleId: articleId})
+		const comment = await Comment.findOne({ articleId: articleId })
 		// 如果没有找到当前文章就证明这个文章下面没有评论 就给他创建评论
-		if(comment === null) {
+		if (comment === null) {
 			const content = req.body.comment.content
 			content.createTime = new Date()
 			req.body.comment.content = content
@@ -153,7 +176,7 @@ exports.deleteComments = async (req, res, next) => {
 		const commentId = req.params.commentId
 		const content = comment.content
 		content.forEach(async (item, index) => {
-			if(item._id.toString() === commentId.toString()) { 
+			if (item._id.toString() === commentId.toString()) {
 				content.splice(index, 1)
 			}
 		});
@@ -190,7 +213,7 @@ exports.favoriteArticle = async (req, res, next) => {
 				status: 201
 			})
 		}
-		
+
 	} catch (error) {
 		next(error)
 	}
